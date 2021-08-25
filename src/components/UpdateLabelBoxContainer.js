@@ -1,5 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from "react"
 import styled from "styled-components"
+import usePointerMove from "../hooks/usePointerMove"
+import usePointerUp from "../hooks/usePointerUp"
 import { primaryBoxColor } from "../style/colors"
 
 const ContentContainer = styled.div`
@@ -31,6 +33,8 @@ const DragBar = styled.div`
 `
 
 const initialLabelBoxData = {
+  originX: 0,
+  originY: 0,
   startClientX: 0,
   startClientY: 0,
   labelBoxPositionX: 0,
@@ -44,14 +48,51 @@ export default function UpdateLabelBoxContainer({
   setLabelBoxList,
   imageUrl,
 }) {
+  const changeLabelBoxStyle = useCallback(
+    (index, originY, originX, yDiff, xDiff) => {
+      if (originY === 0 || originX === 0) {
+        return labelBoxList
+      }
+
+      let newTop = originY + yDiff
+      let newLeft = originX + xDiff
+
+      return labelBoxList.map((item) => {
+        if (item.index === index) {
+          return {
+            index,
+            style: { ...item.style, top: newTop, left: newLeft },
+          }
+        }
+        return item
+      })
+    },
+    // eslint-disable-next-line no-use-before-define
+    [labelBoxList]
+  )
+
   const labelSelectBoxRef = useRef()
   const imageBoxRef = useRef()
   const [onDraggableMode, setOnDraggableMode] = useState(false)
-  const [cropEventBound, setCropEventBound] = useState(false)
   const [labelBoxData, setLabelBoxData] = useState({
     ...initialLabelBoxData,
   })
   const [selectedItemList, setSelectedItemList] = useState([])
+  // not using pointer move position value
+  // eslint-disable-next-line no-unused-vars
+  const [_movePositionX, _movePositionY] = usePointerMove(
+    labelSelectBoxRef,
+    imageBoxRef,
+    onDraggableMode,
+    labelBoxData,
+    changeLabelBoxStyle,
+    setLabelBoxList,
+    setLabelBoxData
+  )
+  const [lastMovePositionX, lastMovePositionY] = usePointerUp(
+    labelSelectBoxRef,
+    onDraggableMode
+  )
 
   const setOnDraggableModeValue = (value) => {
     setOnDraggableMode(value)
@@ -76,6 +117,8 @@ export default function UpdateLabelBoxContainer({
 
     setLabelBoxData({
       ...initialLabelBoxData,
+      originX: labelBoxList[index].style.left,
+      originY: labelBoxList[index].style.top,
       startClientX: x,
       startClientY: y,
       labelBoxPositionX: x,
@@ -85,109 +128,18 @@ export default function UpdateLabelBoxContainer({
     setOnDraggableModeValue(true)
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const changeLabelBoxStyle = (index, curTop, curLeft) => {
-    let newTop = labelBoxList[index].style.top + (curTop - labelBoxData.startClientY)
-    let newLeft = labelBoxList[index].style.left + (curLeft - labelBoxData.startClientX)
-
-    return labelBoxList.map((item) => {
-      if (item.index === index) {
-        return {
-          index,
-          style: { ...item.style, top: newTop, left: newLeft },
-        }
-      }
-      return item
-    })
-  }
-
-  const onLabelBoxPointerMove = useCallback(
-    (event) => {
-      if (!onDraggableMode) {
-        return
-      }
-
-      if (imageBoxRef.current == null) {
-        return
-      }
-
-      const rect = imageBoxRef.current.getBoundingClientRect()
-      const x = event.clientX - rect.left
-      const y = event.clientY - rect.top
-
-      const newLabelBoxStyleList = changeLabelBoxStyle(labelBoxData?.index, y, x)
-      setLabelBoxList([...newLabelBoxStyleList])
-
-      setLabelBoxData({
-        ...labelBoxData,
-        labelBoxPositionX: x,
-        labelBoxPositionY: y,
-        xDiff: labelBoxData.startClientX - x,
-        yDiff: labelBoxData.startClientY - y,
-      })
-    },
-    [changeLabelBoxStyle, labelBoxData, onDraggableMode, setLabelBoxList]
-  )
-
-  const onLabelBoxPointerDone = useCallback(
-    (_event) => {
-      if (onDraggableMode) {
-        if (imageBoxRef.current == null) {
-          return
-        }
-        setLabelBoxData({ ...initialLabelBoxData })
-        setOnDraggableModeValue(false)
-      }
-    },
-    [onDraggableMode]
-  )
-
-  const addCropEvents = useCallback(() => {
-    if (cropEventBound) {
-      return
-    }
-
-    if (labelSelectBoxRef.current == null) {
-      return
-    }
-
-    labelSelectBoxRef.current.addEventListener("pointermove", onLabelBoxPointerMove)
-    labelSelectBoxRef.current.addEventListener("pointerup", onLabelBoxPointerDone)
-    labelSelectBoxRef.current.addEventListener("pointercancel", onLabelBoxPointerDone)
-
-    setCropEventBound(true)
-  }, [cropEventBound, onLabelBoxPointerDone, onLabelBoxPointerMove])
-
-  const removeCropEvents = useCallback(() => {
-    if (!cropEventBound) {
-      return
-    }
-
-    if (labelSelectBoxRef.current == null) {
-      return
-    }
-
-    labelSelectBoxRef.current.removeEventListener("pointermove", onLabelBoxPointerMove)
-    labelSelectBoxRef.current.removeEventListener("pointerup", onLabelBoxPointerDone)
-    labelSelectBoxRef.current.removeEventListener("pointercancel", onLabelBoxPointerDone)
-
-    setCropEventBound(false)
-  }, [cropEventBound, onLabelBoxPointerDone, onLabelBoxPointerMove])
-
+  // Handle onPointerUp event
   useEffect(() => {
-    if (onDraggableMode && !cropEventBound) {
-      // Add pointer move, up, cancel event listeners
-      addCropEvents()
+    if (onDraggableMode) {
+      setLabelBoxData({ ...initialLabelBoxData })
+      setOnDraggableModeValue(false)
     }
-    if (!onDraggableMode && cropEventBound) {
-      // Remove event listeners
-      removeCropEvents()
-    }
-  }, [cropEventBound, addCropEvents, removeCropEvents, onDraggableMode])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastMovePositionX, lastMovePositionY])
 
   return (
     <ContentContainer>
-      <LabelSelectContainer ref={labelSelectBoxRef} onPointerDown={(e) => {}}>
+      <LabelSelectContainer ref={labelSelectBoxRef}>
         <div
           ref={imageBoxRef}
           style={{ display: "inline-block", width: "fit-content", height: "fit-content" }}

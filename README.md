@@ -26,9 +26,3 @@ X 시간 안에 구현하지 못했습니다.
 ### 이미지 라벨 로테이션 조정
 
 X 시간 안에 구현하지 못했습니다.
-
-### 이슈
-
-- 이벤트 리스너가 중복으로 등록되는 문제 (removeEventListener가 정상적으로 동작하지 않아서 인 것으로 생각중)
-- 드래그 종료시 pointerup event에서 onDraggableMode = false로 설정했음에도 pointermove event에서 onDraggable을 true로 체크하고 있는 문제
-  - 이벤트 리스너 문제가 해결되면 pointermove 이벤트가 지속되는 이슈는 해결됨. 다만, 위 문제는 어떤 이유로 발생한 것인지 정확하게 알고 넘어갈 필요가 있을 듯
