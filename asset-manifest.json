@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/dataset-label/static/css/main.b00c5fe3.chunk.css",
+    "main.js": "/dataset-label/static/js/main.e4b3af2c.chunk.js",
+    "main.js.map": "/dataset-label/static/js/main.e4b3af2c.chunk.js.map",
+    "runtime-main.js": "/dataset-label/static/js/runtime-main.90db18a1.js",
+    "runtime-main.js.map": "/dataset-label/static/js/runtime-main.90db18a1.js.map",
+    "static/js/2.befd8387.chunk.js": "/dataset-label/static/js/2.befd8387.chunk.js",
+    "static/js/2.befd8387.chunk.js.map": "/dataset-label/static/js/2.befd8387.chunk.js.map",
+    "static/js/3.402703bf.chunk.js": "/dataset-label/static/js/3.402703bf.chunk.js",
+    "static/js/3.402703bf.chunk.js.map": "/dataset-label/static/js/3.402703bf.chunk.js.map",
+    "index.html": "/dataset-label/index.html",
+    "static/css/main.b00c5fe3.chunk.css.map": "/dataset-label/static/css/main.b00c5fe3.chunk.css.map",
+    "static/js/2.befd8387.chunk.js.LICENSE.txt": "/dataset-label/static/js/2.befd8387.chunk.js.LICENSE.txt",
+    "static/media/BoundingBoxCreate.72e3ee62.svg": "/dataset-label/static/media/BoundingBoxCreate.72e3ee62.svg",
+    "static/media/ToolbarSelect.16e5edbf.svg": "/dataset-label/static/media/ToolbarSelect.16e5edbf.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.90db18a1.js",
+    "static/js/2.befd8387.chunk.js",
+    "static/css/main.b00c5fe3.chunk.css",
+    "static/js/main.e4b3af2c.chunk.js"
+  ]
+}
